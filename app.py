@@ -3,7 +3,7 @@ from langchain_groq import ChatGroq
 from langchain_community.tools.tavily_search import TavilySearchResults
 
 # 1. Page Configuration
-st.set_page_config(page_title="Virgo Ai Engiene", page_icon="🌐", layout="wide")
+st.set_page_config(page_title="Virgo Ai Engine", page_icon="🌐", layout="wide")
 
 # 2. Access Keys from Secrets
 groq_key = st.secrets["GROQ_API_KEY"]
