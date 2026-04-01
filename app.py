@@ -1,96 +1,146 @@
 import streamlit as st
+import time
 from langchain_groq import ChatGroq
 from langchain_community.tools.tavily_search import TavilySearchResults
 from langchain.agents import create_react_agent, AgentExecutor
 from langchain import hub
 from langchain.memory import ConversationBufferWindowMemory
 
-# 1. PREMIUM PAGE SETUP
+# 1. GLOBAL SETTINGS & STYLING (Premium UX)
 st.set_page_config(page_title="Virgo AI | Global Intelligence", page_icon="🌌", layout="wide")
 
-# 2. CYBER-GLASS UI DESIGN (CSS)
 st.markdown("""
 <style>
+    /* Dark Nebula Theme */
     .stApp {
-        background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
-        color: #f8fafc;
+        background: radial-gradient(circle at 20% 30%, #1e293b 0%, #020617 100%);
+        color: #f1f5f9;
     }
-    .main-title {
-        font-size: 50px;
-        font-weight: 800;
-        background: linear-gradient(90deg, #22d3ee, #818cf8, #c084fc);
+    
+    /* Neon Header */
+    .virgo-title {
+        font-family: 'Inter', sans-serif;
+        font-size: 55px;
+        font-weight: 900;
+        background: linear-gradient(135deg, #22d3ee 0%, #818cf8 50%, #c084fc 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         text-align: center;
-        padding-bottom: 20px;
+        letter-spacing: -2px;
     }
+
+    /* Glassmorphism Sidebar */
     [data-testid="stSidebar"] {
-        background-color: rgba(15, 23, 42, 0.9) !important;
-        backdrop-filter: blur(15px);
+        background: rgba(15, 23, 42, 0.8) !important;
+        backdrop-filter: blur(20px);
         border-right: 1px solid rgba(255, 255, 255, 0.1);
     }
+
+    /* Chat Styling */
     .stChatMessage {
-        background: rgba(30, 41, 59, 0.4) !important;
+        border-radius: 20px !important;
         border: 1px solid rgba(255, 255, 255, 0.05);
-        border-radius: 15px !important;
-        margin: 10px 0px;
+        background: rgba(30, 41, 59, 0.3) !important;
+        margin: 12px 0px;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# 3. CORE SYSTEM IDENTITY
+# 2. VIRGO COMMAND CENTER (Sidebar)
 with st.sidebar:
-    st.markdown("### 🌌 Virgo Control Center")
+    st.markdown("## ⚙️ Virgo Command")
     st.divider()
-    model_name = st.selectbox("Intelligence Core", ["llama-3.3-70b-versatile", "mixtral-8x7b-32768"])
-    creativity = st.slider("Human Resonance (Temp)", 0.0, 1.0, 0.7)
     
-    if st.button("Purge Memory", use_container_width=True):
+    # Python 3.11 Optimized selection
+    model_id = st.selectbox("Intelligence Core", 
+        ["llama-3.3-70b-versatile", "mixtral-8x7b-32768"], 
+        help="Select the neural architecture for Virgo AI.")
+    
+    human_feel = st.slider("Human Resonance", 0.0, 1.0, 0.8, 
+        help="Higher values make responses more conversational and creative.")
+    
+    st.divider()
+    if st.button("✨ Purge Neural Memory", use_container_width=True):
         st.session_state.messages = []
         st.session_state.memory.clear()
         st.rerun()
-    st.caption("Virgo AI v3.0 | Global Search Active")
+    
+    st.caption("Virgo Engine v3.5.1 | Python 3.11 Optimized")
 
-# 4. INITIALIZE AGENT & MEMORY
+# 3. BRAIN & MEMORY INITIALIZATION
 if "memory" not in st.session_state:
-    st.session_state.memory = ConversationBufferWindowMemory(k=10, memory_key="chat_history", return_messages=True)
+    st.session_state.memory = ConversationBufferWindowMemory(
+        k=10, 
+        memory_key="chat_history", 
+        return_messages=True
+    )
 
 if "messages" not in st.session_state:
-    st.session_state.messages = [{"role": "assistant", "content": "System online. I am Virgo AI. How can I assist your global research today?"}]
+    st.session_state.messages = [
+        {"role": "assistant", "content": "Virgo AI Online. I have full access to global information. How can I assist you?"}
+    ]
 
-# Setup Tools & LLM
-llm = ChatGroq(api_key=st.secrets["GROQ_API_KEY"], model=model_name, temperature=creativity)
-search = TavilySearchResults(api_key=st.secrets["TAVILY_API_KEY"])
-tools = [search]
-prompt = hub.pull("hwchase17/react")
+# Setup Agent Architecture
+try:
+    llm = ChatGroq(
+        api_key=st.secrets["GROQ_API_KEY"], 
+        model_name=model_id, 
+        temperature=human_feel
+    )
+    search = TavilySearchResults(api_key=st.secrets["TAVILY_API_KEY"])
+    tools = [search]
+    prompt_template = hub.pull("hwchase17/react")
 
-agent = create_react_agent(llm, tools, prompt)
-agent_executor = AgentExecutor(agent=agent, tools=tools, memory=st.session_state.memory, handle_parsing_errors=True)
+    agent = create_react_agent(llm, tools, prompt_template)
+    agent_executor = AgentExecutor(
+        agent=agent, 
+        tools=tools, 
+        memory=st.session_state.memory, 
+        handle_parsing_errors=True,
+        verbose=False
+    )
+except Exception as e:
+    st.error(f"Hardware/API Link Failure: {e}")
+    st.stop()
 
-# 5. PREMIUM CHAT INTERFACE
-st.markdown('<p class="main-title">Virgo AI Engine</p>', unsafe_allow_html=True)
+# 4. CHAT INTERFACE
+st.markdown('<p class="virgo-title">Virgo AI</p>', unsafe_allow_html=True)
 
+# Display History
 for msg in st.session_state.messages:
-    with st.chat_message(msg["role"], avatar="🌌" if msg["role"]=="assistant" else "👤"):
+    avatar = "🌌" if msg["role"] == "assistant" else "👤"
+    with st.chat_message(msg["role"], avatar=avatar):
         st.markdown(msg["content"])
 
-if prompt_input := st.chat_input("Ask anything about the world..."):
-    st.session_state.messages.append({"role": "user", "content": prompt_input})
+# User Interaction
+if user_query := st.chat_input("Ask Virgo anything..."):
+    st.session_state.messages.append({"role": "user", "content": user_query})
     with st.chat_message("user", avatar="👤"):
-        st.markdown(prompt_input)
+        st.markdown(user_query)
 
     with st.chat_message("assistant", avatar="🌌"):
-        with st.status("🌌 Accessing Global Data...", expanded=False) as status:
+        with st.status("🌌 Scanning Global Networks...", expanded=False) as status:
             try:
-                # Direct instruction for Gemini-like personality
-                system_instruction = f"User: {prompt_input}. (Note: You are Virgo AI. Provide comprehensive, human-like, world-class information.)"
+                # Optimized Identity Injection
+                identity_prompt = f"User: {user_query}. (Note: You are Virgo AI. Be human-like, expert, and professional.)"
                 
-                response = agent_executor.invoke({"input": system_instruction})
-                full_response = response["output"]
+                # Execute AI Logic
+                result = agent_executor.invoke({"input": identity_prompt})
+                full_text = result["output"]
                 
                 status.update(label="Analysis Complete", state="complete")
-                st.write(full_response)
-                st.session_state.messages.append({"role": "assistant", "content": full_response})
+                
+                # Gemini-style word streaming effect
+                placeholder = st.empty()
+                streamed_text = ""
+                for word in full_text.split(" "):
+                    streamed_text += word + " "
+                    placeholder.markdown(streamed_text + "▌")
+                    time.sleep(0.04) # Speed of human-like typing
+                placeholder.markdown(streamed_text)
+                
+                st.session_state.messages.append({"role": "assistant", "content": full_text})
+                
             except Exception as e:
-                status.update(label="Core Snag", state="error")
-                st.error(f"I encountered a small hiccup: {str(e)}")
+                status.update(label="Core Failure", state="error")
+                st.error(f"I encountered a system snag: {str(e)}")
