@@ -1,10 +1,10 @@
 import streamlit as st
+
 from langchain_groq import ChatGroq
 from langchain_community.tools.tavily_search import TavilySearchResults
 from langchain.agents import create_react_agent, AgentExecutor
 from langchain import hub
 from langchain.memory import ConversationBufferWindowMemory
-
 # 1. Premium UI Setup
 st.set_page_config(page_title="Virgo AI Engine", page_icon="🌌", layout="wide")
 
@@ -32,13 +32,10 @@ for msg in st.session_state.messages:
     with st.chat_message(msg["role"]): st.markdown(msg["content"])
 
 # 4. The Brain (Simplified Agent)
-llm = ChatGroq(api_key=groq_api_key, model="llama-3.3-70b-versatile")
-search = TavilySearchResults(api_key=tavily_api_key)
-tools = [search]
-prompt = hub.pull("hwchase17/react") # This pulls a professional prompt from the cloud
-
-agent = create_react_agent(llm, tools, prompt)
-agent_executor = AgentExecutor(agent=agent, tools=tools, memory=st.session_state.memory, verbose=True, handle_parsing_errors=True)
+MODEL_NAME = "llama-3.3-70b-versatile"
+MEMORY_WINDOW = 5
+INITIAL_MESSAGE = "I am Virgo AI. How can I help you today?"
+PROMPT_TEMPLATE = "hwchase17/react"
 
 # 5. Chat Logic
 if user_input := st.chat_input("Ask Virgo AI..."):
