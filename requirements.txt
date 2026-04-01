@@ -1,7 +1,6 @@
 streamlit
 groq
-tavily-python
 langchain
 langchain-groq
 langchain-community
-langchainhub
+tavily-python
