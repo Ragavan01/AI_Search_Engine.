@@ -1,13 +1,21 @@
-# Core Framework
-streamlit==1.31.0
+# Core framework
+streamlit>=1.32.0
 
-# AI/LLM Integration
-groq==0.4.2
+# HTTP requests
+requests>=2.31.0
 
-# Web Search Integration
-tavily-python==0.3.5
+# Google Gemini AI (optional, for Gemini support)
+google-generativeai>=0.3.0
 
-# Additional dependencies (automatically installed by the above packages)
-# httpx
-# pydantic
-# typing-extensions
+# Additional utilities
+python-dateutil>=2.8.2
+
+# JSON handling (built-in, but good to specify)
+# Standard library modules don't need to be listed
+
+# For better performance
+urllib3>=2.0.0
+certifi>=2023.0.0
+
+# Type hints support
+typing-extensions>=4.8.0
