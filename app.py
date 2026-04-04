@@ -310,7 +310,7 @@ AI_MODELS = {
     },
     "Google - Gemini Pro (Free)": {
         "provider": "gemini",
-        "model": "gemini-pro",
+        "model": "gemini-3-flash-preview",
         "description": "Google's powerful multimodal AI"
     },
     "HuggingFace - Mistral 7B": {
